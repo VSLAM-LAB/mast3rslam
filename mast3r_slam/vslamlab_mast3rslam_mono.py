@@ -9,7 +9,7 @@ import torch
 import tqdm
 import os
 import yaml
-import pkg_resources
+import importlib.resources
 from mast3r_slam.global_opt import FactorGraph
 
 from mast3r_slam.config import load_config, config, set_global_config
@@ -163,10 +163,8 @@ def main():
 
     args, _ = parser.parse_known_args()
     no_viz = not bool(int(args.verbose))
-    if not os.path.exists(args.settings_yaml):
-        args.settings_yaml = pkg_resources.resource_filename(
-            'mast3r_slam.configs', 'vslamlab_mast3rslam-dev_settings.yaml'
-        )
+    if not args.settings_yaml or not os.path.exists(args.settings_yaml):
+        args.settings_yaml = str(importlib.resources.files('mast3r_slam.configs') / 'vslamlab_mast3rslam-dev_settings.yaml')
 
     load_config(args.settings_yaml)
     config["use_calib"] = bool(int(args.use_calib)) #not args.no_calib

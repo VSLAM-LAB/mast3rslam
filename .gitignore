@@ -141,3 +141,6 @@ notebooks/*
 
 # VSLAM-LAB
 install_mast3rslam-dev.txt
+# pixi
+.pixi/
+output/

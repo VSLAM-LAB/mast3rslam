@@ -1,22 +1,20 @@
 [build-system]
-requires = ["setuptools==70.0.0", "torch"]
+requires = ["setuptools>=77", "torch"]
 build-backend = "setuptools.build_meta"
 
-# [project]
-# name = "MAST3R-SLAM"
-# version = "0.0.1"
-# dependencies = [
-#     #"numpy==1.26.4",
-#     #"einops",
-#     #"pyrealsense2",
-#     #"evo",
-#     #"natsort",
-#     # "torchcodec==0.1",
-#     #"lietorch @ git+https://github.com/princeton-vl/lietorch.git",
-#     #"plyfile",
-# ]
+[project]
+name = "mast3rslam"
+version = "1.0"
+description = "MASt3R-SLAM: Real-Time Dense SLAM with 3D Reconstruction Priors"
+readme = "README.md"
+license = "CC-BY-NC-SA-4.0"
+license-files = ["LICENSE.md"]
+authors = [{ name = "Riku Murai" }, { name = "Eric Dexheimer" }, { name = "Andrew J. Davison" }]
+requires-python = ">=3.9"
 
-# [tool.setuptools.packages.find]
-# where = ["."]
-# include = ["mast3r_slam"]
-# namespaces = false
+[project.scripts]
+vslamlab_mast3rslam_mono = "mast3r_slam.vslamlab_mast3rslam_mono:main"
+
+[project.urls]
+Homepage = "https://edexheim.github.io/mast3r-slam"
+Repository = "https://github.com/VSLAM-LAB/mast3rslam"

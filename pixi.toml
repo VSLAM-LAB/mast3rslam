@@ -1,0 +1,103 @@
+# Conda package definition for mast3rslam ([package], built by pixi-build from this repo for releases), plus a
+# development environment ([workspace]) that compiles this repo in place with `pixi run install`.
+# Release builds take their CUDA variants from variants.yaml; releases are published by CI on vX.Y tags.
+[workspace]
+authors = ["vslamlab <vslamlab@gmail.com>"]
+channels = ["https://prefix.dev/conda-forge", "https://prefix.dev/vslamlab/vslamlab"]
+name = "mast3rslam"
+platforms = [
+    { name = "linux-64-cuda126", platform = "linux-64", cuda = "12.6" },
+    { name = "linux-64-cuda129", platform = "linux-64", cuda = "12.9" },
+]
+version = "0.1.0"
+preview = ["pixi-build"]
+build-variants-files = ["variants.yaml"]  # CUDA variants (needs zip_keys, which the inline table lacks)
+
+# One package build per value (combined with the CUDA variants in variants.yaml)
+[workspace.build-variants]
+python = ["3.11.*"]
+
+########################################################################################################################
+# Package. Release: from a clean checkout of a tagged commit (CI does this, see .github/workflows/conda-package.yml)
+#   pixi publish --clean --target-dir output
+#   pixi upload prefix --channel vslamlab/vslamlab output/*.conda
+# One package with MASt3R-SLAM and its vendored thirdparty code: mast3r, dust3r (+ CroCo's curope CUDA kernels),
+# asmk (asmk.hamming C extension), in3d and pyimgui (imgui.core/internal, from its pre-generated C++).
+[package]
+name = "mast3rslam"
+version = "1.0"
+description = "MASt3R-SLAM: Real-Time Dense SLAM with 3D Reconstruction Priors"
+authors = ["Riku Murai", "Eric Dexheimer", "Andrew J. Davison"]
+license = "CC-BY-NC-SA-4.0"
+homepage = "https://edexheim.github.io/mast3r-slam"
+repository = "https://github.com/VSLAM-LAB/mast3rslam"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "0.*" }
+
+[package.build.config]
+noarch = false                    # compiled CUDA/C/C++ extensions
+compilers = ["c", "cxx", "cuda"]
+installer = "pip"
+env = { TORCH_CUDA_ARCH_LIST = "7.0;7.5;8.0;8.6;8.9;9.0+PTX" }  # else nvcc targets only the build machine's GPU
+
+[package.build-dependencies]
+ninja = "*"
+
+# No cython here: pyimgui would then try to regenerate its C++ with Cython 3 (it needs Cython<0.30)
+[package.host-dependencies]
+python = "*"
+pip = "*"
+setuptools = "*"
+pytorch-gpu = "2.7.*"   # keep equal to the run pin below
+cuda-version = "*"      # set per build by cuda_version in variants.yaml
+cuda-cudart-dev = "*"
+libcublas-dev = "*"     # headers pulled in by ATen/cuda/CUDAContext.h
+libcusparse-dev = "*"
+libcusolver-dev = "*"
+eigen = "*"             # setup.py includes $PREFIX/include/eigen3
+
+[package.run-dependencies]
+python = "*"
+pytorch-gpu = "2.7.*"   # the extensions are compiled against this torch ABI
+torchvision = "*"
+lietorch = ">=1.0.1,<1.1"  # https://prefix.dev/vslamlab/vslamlab (github.com/VSLAM-LAB/lietorch)
+roma = "*"              # https://prefix.dev/vslamlab/vslamlab (github.com/VSLAM-LAB/conda-recipes)
+numpy = "<2"
+einops = "*"
+faiss = "*"             # asmk retrieval index
+huggingface_hub = "*"
+matplotlib = "*"
+natsort = "*"
+opencv = "*"
+pandas = "*"
+pillow = "*"
+plyfile = "*"
+pyyaml = "*"
+packaging = "*"
+scipy = "*"
+scikit-learn = "*"
+tqdm = "*"
+trimesh = "*"
+# viewer (imported by the entry script even when not shown): in3d, moderngl, glfw, glm
+moderngl = "*"
+moderngl-window = "*"
+pyglfw = "*"
+pyglm = "*"
+pyrealsense2 = "*"      # imported by mast3r_slam.dataloader
+
+########################################################################################################################
+# Workspace: development environment (CUDA 12.9). `pixi run install` compiles the extensions in place against this
+# environment and installs the repo in editable mode; Python edits apply immediately, after editing *.cu or *.cpp
+# run `pixi run install` again. The environment gets the [package] build/host/run dependencies through [dev]
+# (mast3rslam itself is not built).
+[tasks]
+install = "pip install --no-build-isolation --no-deps -e ."
+execute-mono = "vslamlab_mast3rslam_mono"
+test = "python -I -c 'import mast3r_slam_backends, curope, asmk.hamming, imgui.core, in3d.camera, lietorch, roma, mast3r.model, dust3r.model; from mast3r_slam.visualization import WindowMsg; import mast3r_slam.vslamlab_mast3rslam_mono; print(WindowMsg)' && vslamlab_mast3rslam_mono --help > /dev/null && echo OK"
+
+[dev]
+mast3rslam = { path = "." }  # installs the [package] build/host/run dependencies, not mast3rslam itself
+
+[dependencies]
+cuda-version = "12.9.*"
