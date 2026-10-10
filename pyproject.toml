@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mast3rslam"
-version = "1.0"
+version = "1.1"
 description = "MASt3R-SLAM: Real-Time Dense SLAM with 3D Reconstruction Priors"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

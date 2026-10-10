@@ -25,7 +25,7 @@ python = ["3.11.*"]
 # asmk (asmk.hamming C extension), in3d and pyimgui (imgui.core/internal, from its pre-generated C++).
 [package]
 name = "mast3rslam"
-version = "1.0"
+version = "1.1"
 description = "MASt3R-SLAM: Real-Time Dense SLAM with 3D Reconstruction Priors"
 authors = ["Riku Murai", "Eric Dexheimer", "Andrew J. Davison"]
 license = "CC-BY-NC-SA-4.0"
