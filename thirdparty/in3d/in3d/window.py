@@ -62,6 +62,34 @@ class WindowEvents(mglw.WindowConfig):
     def unicode_char_entered(self, char):
         self.imgui.unicode_char_entered(char)
 
+    # moderngl-window >= 3 only binds the on_* callbacks; forward them to the 2.x names above, which subclasses override
+    def on_render(self, time: float, frame_time: float):
+        self.render(time, frame_time)
+
+    def on_resize(self, width: int, height: int):
+        self.resize(width, height)
+
+    def on_key_event(self, key, action, modifiers):
+        self.key_event(key, action, modifiers)
+
+    def on_mouse_position_event(self, x, y, dx, dy):
+        self.mouse_position_event(x, y, dx, dy)
+
+    def on_mouse_drag_event(self, x, y, dx, dy):
+        self.mouse_drag_event(x, y, dx, dy)
+
+    def on_mouse_scroll_event(self, x_offset, y_offset):
+        self.mouse_scroll_event(x_offset, y_offset)
+
+    def on_mouse_press_event(self, x, y, button):
+        self.mouse_press_event(x, y, button)
+
+    def on_mouse_release_event(self, x: int, y: int, button: int):
+        self.mouse_release_event(x, y, button)
+
+    def on_unicode_char_entered(self, char):
+        self.unicode_char_entered(char)
+
     def set_font_scale(self, scale, font_size=15):
         # TODO: Only tested on ubuntu
         io = imgui.get_io()
